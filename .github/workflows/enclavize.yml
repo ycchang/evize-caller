@@ -1,0 +1,57 @@
+name: enclavize this account
+
+# Calls the reusable workflow that seals this repo's AWS account and signs a
+# statement saying so. The attestation is stored against *this* repo, because
+# this is where the run happens — which is why a verifier passes --repo for the
+# caller and --signer-workflow for enclavize.
+#
+# Pinned to @main while testing. For a run whose proof is meant to mean
+# something, pin a commit sha instead: the sha is what a verifier's
+# --signer-workflow check is anchored to, and it is also the commit the sealed
+# account clones its own setup program from.
+
+on:
+  workflow_dispatch:
+    inputs:
+      domain:
+        description: the domain being transferred in
+        required: true
+        type: string
+      start:
+        description: window start, unix seconds, must be in the past
+        required: true
+        type: string
+      repo:
+        description: the application repo this account will deploy (owner/name)
+        required: true
+        type: string
+      bypass_event_check:
+        description: skip the history audit (marks the statement debug)
+        type: boolean
+        default: false
+      bypass_domain_transfer:
+        description: skip accepting the transfer (marks the statement debug)
+        type: boolean
+        default: false
+
+jobs:
+  enclavize:
+    # A reusable workflow receives the intersection of its own permissions and
+    # the caller's, so leaving any of these out means no signature.
+    permissions:
+      id-token: write
+      attestations: write
+      contents: read
+    uses: hylswind/evize-workflow/.github/workflows/enclavize.yml@main
+    with:
+      domain: ${{ inputs.domain }}
+      start: ${{ inputs.start }}
+      repo: ${{ inputs.repo }}
+      bypass_event_check: ${{ inputs.bypass_event_check }}
+      bypass_domain_transfer: ${{ inputs.bypass_domain_transfer }}
+    secrets:
+      ROOT_KEY_ID: ${{ secrets.ROOT_KEY_ID }}
+      ROOT_SECRET: ${{ secrets.ROOT_SECRET }}
+      TRANSFER_PASSWORD: ${{ secrets.TRANSFER_PASSWORD }}
+      DEPLOY_API_KEY: ${{ secrets.DEPLOY_API_KEY }}
+      CONSOLE_ZIP_PASSWORD: ${{ secrets.CONSOLE_ZIP_PASSWORD }}
