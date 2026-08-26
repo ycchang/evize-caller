@@ -53,5 +53,5 @@ jobs:
       ROOT_KEY_ID: ${{ secrets.ROOT_KEY_ID }}
       ROOT_SECRET: ${{ secrets.ROOT_SECRET }}
       TRANSFER_PASSWORD: ${{ secrets.TRANSFER_PASSWORD }}
-      DEPLOY_API_KEY: ${{ secrets.DEPLOY_API_KEY }}
+      APPLY_API_KEY: ${{ secrets.APPLY_API_KEY }}
       CONSOLE_ZIP_PASSWORD: ${{ secrets.CONSOLE_ZIP_PASSWORD }}
