@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Timestamp API Demo</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      max-width: 680px;
+      margin: 60px auto;
+      padding: 0 20px;
+      line-height: 1.5;
+    }
+
+    button {
+      font: inherit;
+      padding: 10px 16px;
+      cursor: pointer;
+    }
+
+    .result {
+      margin-top: 24px;
+      padding: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background: #f7f7f7;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .error {
+      color: #b00020;
+    }
+  </style>
+</head>
+<body>
+  <h1>Timestamp API Demo</h1>
+
+  <p>
+    Press the button to request the current Unix timestamp from
+    <code>https://aisenseapi.com/services/v1/timestamp</code>.
+  </p>
+
+  <button id="getTime">Get Time</button>
+
+  <div id="result" class="result">No request made yet.</div>
+
+  <script>
+    const API_URL = "https://aisenseapi.com/services/v1/timestamp";
+    const button = document.getElementById("getTime");
+    const result = document.getElementById("result");
+
+    button.addEventListener("click", async () => {
+      button.disabled = true;
+      result.classList.remove("error");
+      result.textContent = "Loading...";
+
+      try {
+        const response = await fetch(API_URL, {
+          method: "GET",
+          cache: "no-store"
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status} ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        const timestamp = data.timestamp;
+        const readableTime = new Date(timestamp * 1000).toString();
+
+        result.textContent =
+          `Unix timestamp: ${timestamp}\n` +
+          `Readable time: ${readableTime}\n\n` +
+          `Raw response:\n${JSON.stringify(data, null, 2)}`;
+      } catch (error) {
+        result.classList.add("error");
+        result.textContent =
+          "Request failed:\n" +
+          error.message +
+          "\n\nIf this is opened locally and the browser blocks the request, the API may not allow cross-origin browser requests (CORS).";
+      } finally {
+        button.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
